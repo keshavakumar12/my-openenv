@@ -6,7 +6,7 @@ description: >
   spanning 5 database schemas (HR, Hospital, University, E-Commerce, Library),
   10 SQL categories, and 4 difficulty tiers — graded deterministically against
   real SQLite databases.
-author: Keshav
+author: Keshava
 license: None
 
 server:
