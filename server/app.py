@@ -4,9 +4,9 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from environment import SQLFixerEnvironment
-from models import SQLFixAction, SQLFixObservation, SQLFixState
-from tasks import SCHEMAS, TASKS
+from server.environment import SQLFixerEnvironment
+from server.models import SQLFixAction, SQLFixObservation, SQLFixState
+from server.tasks import SCHEMAS, TASKS
 
 
 app = FastAPI(
@@ -106,3 +106,10 @@ def schemas():
             }
         }
     return result
+
+def main():
+    import uvicorn
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
+
+if __name__ == "__main__":
+    main()

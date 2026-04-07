@@ -3,7 +3,7 @@ import random
 import re
 from typing import Any
 
-from tasks import TASKS, SCHEMAS
+from server.tasks import TASKS, SCHEMAS
 
 
 def create_database(schema_name: str = "hr") -> sqlite3.Connection:
