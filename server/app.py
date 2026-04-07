@@ -1,12 +1,16 @@
-
 from typing import Optional
 
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-from server.environment import SQLFixerEnvironment
-from server.models import SQLFixAction, SQLFixObservation, SQLFixState
-from server.tasks import SCHEMAS, TASKS
+try:
+    from server.environment import SQLFixerEnvironment
+    from server.models import SQLFixAction, SQLFixObservation, SQLFixState
+    from server.tasks import SCHEMAS, TASKS
+except ModuleNotFoundError:
+    from environment import SQLFixerEnvironment
+    from models import SQLFixAction, SQLFixObservation, SQLFixState
+    from tasks import SCHEMAS, TASKS
 
 
 app = FastAPI(
