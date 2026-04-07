@@ -88,6 +88,9 @@ def state():
         last_score=0.0,
     )
 
+@app.get("/")
+def root():
+    return {"message": "SQL Query Fixer API is running"}
 
 @app.get("/schemas")
 def schemas():
