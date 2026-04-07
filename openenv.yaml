@@ -1,14 +1,13 @@
 name: sql-query-fixer
-version: "2.0.0"
+version: "1.0.0"
 description: >
   An AI training environment where agents practice fixing broken SQL queries.
   Covers syntax errors, logic bugs, and query optimization across 120 tasks
   spanning 5 database schemas (HR, Hospital, University, E-Commerce, Library),
   10 SQL categories, and 4 difficulty tiers — graded deterministically against
   real SQLite databases.
-
-author: Deepak
-license: MIT
+author: Keshava
+license: None
 
 server:
   framework: fastapi
@@ -50,7 +49,6 @@ tasks:
       Fix SQL syntax errors such as misspelled keywords, missing commas,
       wrong operators, NULL comparisons, and UNION column mismatches.
       Spread across all 5 schemas (9 in HR, 3 each in the other 4).
-
   - name: logic_fix
     difficulty: medium
     count: 32
@@ -59,7 +57,6 @@ tasks:
       aggregation traps (GROUP BY, HAVING, conditional COUNT), basic JOIN
       mistakes, date/string function errors.
       Spread across all 5 schemas (16 in HR, 4 each in the other 4).
-
   - name: logic_fix
     difficulty: hard
     count: 32
@@ -69,7 +66,6 @@ tasks:
       function, missing PARTITION BY, bad frame clauses), CTE reference errors,
       and set operation bugs (EXCEPT/INTERSECT misuse).
       Spread across all 5 schemas (20 in HR, 3 each in the other 4).
-
   - name: logic_fix
     difficulty: expert
     count: 23
@@ -79,7 +75,6 @@ tasks:
       with NULLs), department-wide universal quantification, and cross-table
       pair matching via bridge tables.
       Spread across all 5 schemas (11 in HR, 3 each in the other 4).
-
   - name: optimization
     difficulty: hard
     count: 10
@@ -89,7 +84,6 @@ tasks:
       into CTEs, remove leading wildcards, replace correlated subqueries with
       JOINs, split OR into UNION ALL.
       Spread across all 5 schemas (6 in HR, 1 each in the other 4).
-
   - name: optimization
     difficulty: expert
     count: 2
@@ -124,7 +118,6 @@ scoring:
     Deterministic — the agent's query is executed against a real in-memory
     SQLite database and its results are compared to the gold-standard query.
     Partial credit varies by difficulty tier:
-
   syntax_fix:
     "0.0": query fails to execute
     "0.3": executes, wrong results
