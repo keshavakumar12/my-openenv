@@ -165,4 +165,4 @@ python inference.py --url http://localhost:7860 --episodes 2
 
 ## License
 
-MIT
+None
