@@ -1,0 +1,198 @@
+name: sql-query-fixer
+version: "2.0.0"
+description: >
+  An AI training environment where agents practice fixing broken SQL queries.
+  Covers syntax errors, logic bugs, and query optimization across 120 tasks
+  spanning 5 database schemas (HR, Hospital, University, E-Commerce, Library),
+  10 SQL categories, and 4 difficulty tiers — graded deterministically against
+  real SQLite databases.
+
+author: Deepak
+license: MIT
+
+# ---------------------------------------------------------------------------
+# Server
+# ---------------------------------------------------------------------------
+server:
+  framework: fastapi
+  entrypoint: app:app
+  port: 7860
+
+# ---------------------------------------------------------------------------
+# Database Schemas
+# ---------------------------------------------------------------------------
+schemas:
+  - name: hr
+    tables: 11
+    description: >
+      Full HR/corporate schema — employees, departments, projects, assignments,
+      salaries, leave_requests, performance_reviews, skills, employee_skills,
+      project_milestones, clients.
+  - name: hospital
+    tables: 6
+    description: >
+      Healthcare schema — patients, doctors, appointments, medications,
+      prescriptions, wards.
+  - name: university
+    tables: 6
+    description: >
+      Education schema — students, professors, courses, enrollments,
+      scholarships, student_scholarships.
+  - name: ecommerce
+    tables: 6
+    description: >
+      Retail schema — suppliers, customers, products, orders, order_items,
+      returns.
+  - name: library
+    tables: 6
+    description: >
+      Library schema — authors, books, members, loans, fines, reservations.
+
+# ---------------------------------------------------------------------------
+# Tasks
+# ---------------------------------------------------------------------------
+tasks:
+  - name: syntax_fix
+    difficulty: easy
+    count: 21
+    description: >
+      Fix SQL syntax errors such as misspelled keywords, missing commas,
+      wrong operators, NULL comparisons, and UNION column mismatches.
+      Spread across all 5 schemas (9 in HR, 3 each in the other 4).
+
+  - name: logic_fix
+    difficulty: medium
+    count: 32
+    description: >
+      Fix medium-difficulty logic errors — NULL handling with COALESCE/IFNULL,
+      aggregation traps (GROUP BY, HAVING, conditional COUNT), basic JOIN
+      mistakes, date/string function errors.
+      Spread across all 5 schemas (16 in HR, 4 each in the other 4).
+
+  - name: logic_fix
+    difficulty: hard
+    count: 32
+    description: >
+      Fix harder logic errors — subquery bugs (NOT IN vs NOT EXISTS, missing
+      correlation, scalar subquery traps), window function mistakes (wrong
+      function, missing PARTITION BY, bad frame clauses), CTE reference errors,
+      and set operation bugs (EXCEPT/INTERSECT misuse).
+      Spread across all 5 schemas (20 in HR, 3 each in the other 4).
+
+  - name: logic_fix
+    difficulty: expert
+    count: 23
+    description: >
+      Fix expert-level logic errors — recursive CTEs, relational division
+      (double NOT EXISTS), complex window frames (LAST_VALUE, running totals
+      with NULLs), department-wide universal quantification, and cross-table
+      pair matching via bridge tables.
+      Spread across all 5 schemas (11 in HR, 3 each in the other 4).
+
+  - name: optimization
+    difficulty: hard
+    count: 10
+    description: >
+      Rewrite correct-but-inefficient queries — replace NOT IN with NOT EXISTS,
+      replace GROUP BY + HAVING with EXISTS, consolidate repeated subqueries
+      into CTEs, remove leading wildcards, replace correlated subqueries with
+      JOINs, split OR into UNION ALL.
+      Spread across all 5 schemas (6 in HR, 1 each in the other 4).
+
+  - name: optimization
+    difficulty: expert
+    count: 2
+    description: >
+      Expert optimization — replace self-join rank computation with window
+      functions, replace correlated subquery pivots with conditional aggregation.
+      HR schema only.
+
+# ---------------------------------------------------------------------------
+# Action & Observation spaces
+# ---------------------------------------------------------------------------
+action_space:
+  type: text
+  field: fixed_query
+  description: A corrected SQL query string submitted by the agent.
+
+observation_space:
+  type: json
+  fields:
+    - task_type # syntax_fix | logic_fix | optimization
+    - difficulty # easy | medium | hard | expert
+    - description # what the query should do
+    - broken_query # the SQL the agent must fix
+    - hint # clue about what is wrong
+    - schema_info # table and column listing
+    - schema_name # which database schema is active
+    - max_steps # attempts allowed (default 3)
+    - score # 0.0 – 1.0 reward after each step
+    - feedback # human-readable grading explanation
+    - done # episode over flag
+
+# ---------------------------------------------------------------------------
+# Scoring
+# ---------------------------------------------------------------------------
+scoring:
+  range: [0.0, 1.0]
+  method: >
+    Deterministic — the agent's query is executed against a real in-memory
+    SQLite database and its results are compared to the gold-standard query.
+    Partial credit varies by difficulty tier:
+
+  syntax_fix:
+    "0.0": query fails to execute
+    "0.3": executes, wrong results
+    "0.7": correct results, wrong column names
+    "1.0": exact match
+
+  logic_fix_easy:
+    "0.0": fails to execute
+    "0.3": completely wrong results
+    "0.6": ~50% row overlap
+    "0.8": nearly correct
+    "1.0": exact match
+
+  logic_fix_medium:
+    "0.0": fails to execute
+    "0.2": completely wrong
+    "0.5": ~50% overlap
+    "0.8": nearly correct
+    "1.0": exact match
+
+  logic_fix_hard:
+    "0.0": fails to execute
+    "0.1": completely wrong
+    "0.3": ~50% overlap
+    "0.6": nearly correct
+    "1.0": exact match
+
+  logic_fix_expert:
+    "0.0": fails to execute
+    "0.05": completely wrong
+    "0.2": ~50% overlap
+    "0.5": nearly correct
+    "1.0": exact match
+
+  optimization:
+    "0.0": fails to execute
+    "0.2": wrong results
+    "0.4": correct but not simplified
+    "0.7": somewhat simpler
+    "1.0": matches ideal optimized form
+
+# ---------------------------------------------------------------------------
+# Endpoints
+# ---------------------------------------------------------------------------
+endpoints:
+  reset:
+    method: POST
+    path: /reset
+    body: '{"task_type": "syntax_fix", "difficulty": "easy", "schema_name": "hospital"}' # all optional
+  step:
+    method: POST
+    path: /step
+    body: '{"fixed_query": "SELECT ..."}'
+  state:
+    method: GET
+    path: /state
