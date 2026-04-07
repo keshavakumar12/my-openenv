@@ -2,8 +2,10 @@ import sqlite3
 import random
 import re
 from typing import Any
-
-from server.tasks import TASKS, SCHEMAS
+try:
+    from server.tasks import TASKS, SCHEMAS
+except ModuleNotFoundError:
+    from tasks import TASKS, SCHEMAS
 
 
 def create_database(schema_name: str = "hr") -> sqlite3.Connection:
