@@ -7,20 +7,14 @@ description: >
   10 SQL categories, and 4 difficulty tiers — graded deterministically against
   real SQLite databases.
 
-author: Deepak
-license: MIT
+author: Keshav
+license: None
 
-# ---------------------------------------------------------------------------
-# Server
-# ---------------------------------------------------------------------------
 server:
   framework: fastapi
   entrypoint: app:app
   port: 7860
 
-# ---------------------------------------------------------------------------
-# Database Schemas
-# ---------------------------------------------------------------------------
 schemas:
   - name: hr
     tables: 11
@@ -48,9 +42,6 @@ schemas:
     description: >
       Library schema — authors, books, members, loans, fines, reservations.
 
-# ---------------------------------------------------------------------------
-# Tasks
-# ---------------------------------------------------------------------------
 tasks:
   - name: syntax_fix
     difficulty: easy
@@ -107,9 +98,6 @@ tasks:
       functions, replace correlated subquery pivots with conditional aggregation.
       HR schema only.
 
-# ---------------------------------------------------------------------------
-# Action & Observation spaces
-# ---------------------------------------------------------------------------
 action_space:
   type: text
   field: fixed_query
@@ -129,10 +117,6 @@ observation_space:
     - score # 0.0 – 1.0 reward after each step
     - feedback # human-readable grading explanation
     - done # episode over flag
-
-# ---------------------------------------------------------------------------
-# Scoring
-# ---------------------------------------------------------------------------
 scoring:
   range: [0.0, 1.0]
   method: >
@@ -181,9 +165,6 @@ scoring:
     "0.7": somewhat simpler
     "1.0": matches ideal optimized form
 
-# ---------------------------------------------------------------------------
-# Endpoints
-# ---------------------------------------------------------------------------
 endpoints:
   reset:
     method: POST
